@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <title>郵便番号検索</title>
+    <meta charset="utf-8">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        const search_url = 'https://zipcloud.ibsnet.co.jp/api/search';
+
+        function search() {
+            let zip = $('#zip_input').val();
+            zip = zip.replace('-', '');
+
+            //非同期通信コード
+            $.ajax(
+                {
+                    url: search_url,
+                    type: 'get',
+                    dataType: 'json',
+                    data: {
+                        zipcode: zip
+                    }
+                }
+            ).done(
+                function (response) {
+                    const result = response.results;
+                    if (result == null || result.length == 0) {
+                        $('#result_cell').css('color', 'red');
+                        $('#result_cell').html(response.message);
+                    }
+                    else {
+                        const element = result[0];
+                        const address = element.address1 + element.address2 + element.address3;
+                        const kana = element.kana1 + element.kana2 + element.kana3;
+                        $('#result_cell').css('color', 'black');
+                        $('#result_cell').html(address);
+                        $('#result_cell2').html(kana);
+                    }
+                }
+            );
+        }
+
+        function initialize() {
+            $('#search_button').click(search);
+        }
+        $('#window').ready(initialize);
+    </script>
+    <style>
+        table {
+            display: inline-block;
+            padding: 0.8em 3em;
+            background-color: #e3364a;
+            /* 背景色 */
+            box-shadow: 0 5px 0 #ca1c30;
+            /* 影の太さ・色 */
+            border-radius: 60px;
+            color: rgb(255, 255, 255);
+            cursor: pointer;
+            text-decoration: none;
+            /* 文字の下線を消す */
+        }
+
+        .text-box {
+            font-weight: bolder;
+        }
+    </style>
+</head>
+
+<body>
+    <table>
+        <tr>
+            <th>郵便番号</th>
+            <td><input id="zip_input" type="text"></td>
+            <td><button id="search_button">検索</button></td>
+        </tr>
+    </table>
+    <div class="text-box">
+        <div id="result_cell"></div>
+        <div id="result_cell2"></div>
+    </div>
+</body>
+
+</html>
